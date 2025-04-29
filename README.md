@@ -16,6 +16,8 @@ PyTest-Gen is a command-line tool that automatically generates pytest test cases
 
 ## Installation
 
+**Requires Python 3.8 or higher.**
+
 You can install PyTest-Gen using pip:
 
 ```bash
