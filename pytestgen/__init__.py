@@ -21,7 +21,7 @@ def cli():
 @click.option("--api-key", envvar="OPENAI_API_KEY", help="OpenAI API key")
 @click.option("--max-functions", default=None, type=int, help="Maximum number of functions to process")
 @click.option("--overwrite", is_flag=True, help="Overwrite existing test files")
-@click.option("--model", default="gpt-4", help="LLM model to use")
+@click.option("--model", default="gpt-4o", help="LLM model to use")
 @click.option("--dry-run", is_flag=True, help="Print generated tests to the console instead of writing files")
 @click.option("--output-dir", default="tests", type=click.Path(), help="Directory to write generated test files (default: ./tests)")
 def generate(project_dir, api_key, max_functions, overwrite, model, dry_run, output_dir):

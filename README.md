@@ -36,7 +36,7 @@ pytestgen generate --project-dir . --api-key $OPENAI_API_KEY
 - `--api-key`: OpenAI API key (can also be set via OPENAI_API_KEY env var)
 - `--max-functions`: Maximum number of functions to process
 - `--overwrite`: Overwrite existing test files
-- `--model`: LLM model to use (default: gpt-4)
+- `--model`: LLM model to use (default: gpt-4o)
 - `--dry-run`: Print generated tests to the console instead of writing files
 - `--output-dir`: Directory to write generated test files (default: ./tests)
 
