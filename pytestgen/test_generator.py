@@ -2,10 +2,11 @@
 Test case generator using LLM for Python functions
 """
 
-import openai
 import logging
+import os
 from typing import Dict, Any, List
 from dataclasses import dataclass
+from openai import OpenAI
 
 logger = logging.getLogger(__name__)
 
@@ -23,21 +24,23 @@ class TestGenerator:
     Generate pytest test cases using LLM
     """
 
-    def __init__(self, api_key: str, model: str = "text-davinci-003"):
+    def __init__(self, api_key: str, model: str = "gpt-4o", output_dir: str = "output_tests"):
         """
         Initialize the test generator
         
         Args:
             api_key: OpenAI API key
             model: LLM model to use
+            output_dir: Directory to write generated test files
         """
         self.api_key = api_key
         self.model = model
+        self.output_dir = output_dir
         self._setup_openai()
 
     def _setup_openai(self):
-        """Configure OpenAI API"""
-        openai.api_key = self.api_key
+        """Initialize OpenAI client"""
+        self.client = OpenAI(api_key=self.api_key)
 
     def _generate_prompt(self, function_info: Dict[str, Any]) -> str:
         """
@@ -93,14 +96,29 @@ Return only the test code, without any additional text or explanations.
         try:
             prompt = self._generate_prompt(function_info)
             
-            response = openai.Completion.create(
-                engine=self.model,
-                prompt=prompt,
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {"role": "system", "content": "You are a helpful assistant."},
+                    {"role": "user", "content": prompt}
+                ],
                 temperature=0.7,
                 max_tokens=1000
             )
 
-            test_code = response.choices[0].text.strip() if response.choices else ""
+            raw = response.choices[0].message.content if response.choices else ""
+            # strip markdown code fences if present
+            if raw.startswith("```"):
+                lines = raw.splitlines()
+                # drop opening fence
+                if lines and lines[0].startswith("```"):
+                    lines = lines[1:]
+                # drop closing fence
+                if lines and lines[-1].strip().startswith("```"):
+                    lines = lines[:-1]
+                test_code = "\n".join(lines).strip()
+            else:
+                test_code = raw.strip()
             return TestGenerationResult(function_info=function_info, test_code=test_code)
 
         except Exception as e:
@@ -121,8 +139,16 @@ Return only the test code, without any additional text or explanations.
         Returns:
             List of TestGenerationResult objects
         """
+        # ensure output directory exists
+        os.makedirs(self.output_dir, exist_ok=True)
         results = []
         for func_info in functions:
             result = self.generate_test(func_info)
             results.append(result)
+            # write test file
+            if result.test_code:
+                fname = f"test_{func_info['function_name']}.py"
+                path = os.path.join(self.output_dir, fname)
+                with open(path, 'w') as f:
+                    f.write(result.test_code)
         return results
