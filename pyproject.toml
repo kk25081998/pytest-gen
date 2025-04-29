@@ -1,0 +1,26 @@
+[project]
+name = "pytestgen"
+version = "0.2.0"
+description = "AI-Powered Test-Case Generator for Python"
+authors = [
+    { name="Your Name", email="your.email@example.com" }
+]
+requires-python = ">=3.8"
+
+[project.dependencies]
+openai = "^1.3.0"
+pytest = "^7.4.0"
+click = "^8.1.7"
+astor = "^0.8.1"
+
+[project.optional-dependencies]
+dev = [
+    "black>=23.0.0",
+    "isort>=5.12.0",
+    "pytest-cov>=4.1.0",
+    "mypy>=1.4.0"
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
